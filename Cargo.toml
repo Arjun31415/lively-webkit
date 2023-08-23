@@ -1,0 +1,12 @@
+[package]
+name = "foo"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gdk = { version = "0.7.2", package = "gdk4" }
+gsk = { version = "0.7.2", features = ["vulkan"], package = "gsk4" }
+gtk = { version = "0.7.2", package = "gtk4" }
+webkit = { version = "0.2.0", package = "webkit6" }
