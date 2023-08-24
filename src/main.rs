@@ -11,7 +11,6 @@ fn build_ui(app: &Application) {
     let webview = WebView::new();
     let settings = webkit::prelude::WebViewExt::settings(&webview).unwrap();
     settings.set_enable_webgl(true);
-
     webview.load_uri("https://get.webgl.org/");
     window.set_child(Some(&webview));
     gtk_layer_shell::init_for_window(&window);
