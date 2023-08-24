@@ -8,6 +8,10 @@
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
+    nixgl = {
+      url = "github:guibou/nixGL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -43,6 +47,7 @@
             vscode-extensions.llvm-org.lldb-vscode
             taplo
             glib-networking
+            inputs.nixgl.packages.${pkgs.system}.default
           ];
           LD_LIBRARY_PATH = "/run/opengl-driver/lib:/run/opengl-driver-32/lib";
           GIO_MODULE_DIR = "${pkgs.glib-networking}/lib/gio/modules/";
@@ -69,6 +74,7 @@
                 libGL
                 libGLU
                 mesa
+                mesa.drivers
                 gobject-introspection
                 gnutls
                 webkitgtk_6_0
@@ -80,6 +86,13 @@
                 cairo
                 gtk4
                 gtk4-layer-shell
+                egl-wayland
+                wayland
+                vulkan-loader
+                vulkan-validation-layers
+                vulkan-headers
+                vulkan-tools
+                libinput
               ];
             };
           }
