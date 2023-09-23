@@ -18,36 +18,32 @@
     };
   };
 
-  outputs = inputs:
+  outputs = {nixpkgs, ...} @ inputs:
     inputs.flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux"];
       perSystem = {
         config,
-        pkgs,
         system,
         ...
-      }: {
-        imports = [
-          {
-            _module.args.pkgs = import inputs.nixpkgs {
-              overlays = [(import inputs.rust-overlay)];
-              inherit system;
-            };
-          }
-        ];
+      }: let
+        overlays = [(import inputs.rust-overlay) (inputs.nixgl.overlay)];
+        pkgs = import nixpkgs {
+          inherit system overlays;
+        };
+        rustPlatform = pkgs.makeRustPlatform {
+          rustc = pkgs.rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
+          cargo = pkgs.rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
+        };
+      in {
         devShells.default = pkgs.mkShell {
           inputsFrom = [config.packages.foo];
           packages = with pkgs; [
-            clippy
             pre-commit
-            rust-analyzer
-            rustfmt
-            rustPackages.clippy
             glxinfo
             vscode-extensions.llvm-org.lldb-vscode
             taplo
             glib-networking
-            inputs.nixgl.packages.${pkgs.system}.default
+            inputs.nixgl.packages.${system}.default
           ];
           LD_LIBRARY_PATH = "/run/opengl-driver/lib:/run/opengl-driver-32/lib";
           GIO_MODULE_DIR = "${pkgs.glib-networking}/lib/gio/modules/";
@@ -55,7 +51,7 @@
 
         packages =
           {
-            foo = pkgs.rustPlatform.buildRustPackage {
+            foo = rustPlatform.buildRustPackage {
               pname = "foo";
               version = "0.1.0";
               src = ./.;
@@ -68,7 +64,6 @@
               nativeBuildInputs = with pkgs; [
                 pkg-config
                 wrapGAppsHook4
-                (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
               ];
               buildInputs = with pkgs; [
                 libGL
